@@ -119,6 +119,7 @@ module.exports.heap_sort = function (a) {
     }
     function _buildHeap()
     {
+        //start from middle of array
         for(var i=(n >> 1)-1;i>=0;--i)
         {
             _heapify(i,n);
