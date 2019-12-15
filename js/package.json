@@ -1,10 +1,31 @@
 {
-  "name": "algo.js",
+  "name": "algo",
   "version": "1.0.0",
   "description": "algos impl in js",
   "main": "main.js",
-  "repository": "https://github.com/bstephgit/algos.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bstephgit/algos.git"
+  },
   "author": "aldu",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "bugs": {
+    "url": "https://github.com/bstephgit/algos/issues"
+  },
+  "homepage": "https://github.com/bstephgit/algos#readme",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "algo",
+    "data",
+    "structures"
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "gulp": "^4.0.2",
+    "gulp-mocha": "^7.0.2",
+    "mocha": "^6.2.2"
+  }
 }
