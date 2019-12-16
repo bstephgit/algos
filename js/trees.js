@@ -1,19 +1,3 @@
- 
- function Node()
- {
-    this.val = undefined;
-    this.left = null;
-    this.right = null;
- }
- 
- function Tree()
- {
-     this.root = null;
- }
+var Tree = require('./utils').Tree;
 
- Tree.prototype.CreateNode = function (val)
- {
-     var node = new Node();
-     return node;
- }
 

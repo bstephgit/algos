@@ -6,7 +6,7 @@ var utils = require('./utils');
 module.exports.insert = function (a) {
     if(a.length<2) return;
     _insert(a,0,a.length-1);
-}
+};
 function _insert(a,left,right) {
     for (var i = left+1; i <= right; ++i) {
         var j = i - 1;
@@ -24,7 +24,7 @@ function _insert(a,left,right) {
 module.exports.median = function (a) {
 
     function _selectKth(k, left, right) {
-        
+        "use strict";
         //console.log('_selectKth',k,'(',left,right,')','pivot',pivot_index);
         var pivot_index = utils.random_value(left,right);
         pivot_index=utils.partition(a,left,right,pivot_index);
@@ -43,6 +43,7 @@ module.exports.median = function (a) {
 
     function _median(left, right) {
         //console.log('_median',left,right);
+        "use strict";
         if (right <= left) {
             return;
         }
@@ -53,12 +54,13 @@ module.exports.median = function (a) {
     }
 
     _median(0,a.length-1);
-}
+};
 
 //================================================================================
                                     // QUICK SORT
 //================================================================================
 module.exports.qsort = function (a) {
+    "use strict";
     var minSize = 10;
     function _qsort(left,right)
     {
@@ -82,12 +84,13 @@ module.exports.qsort = function (a) {
         }
     }
     _qsort(0,a.length-1);
-}
+};
 
 //================================================================================
                                     // HEAP SORT
 //================================================================================
 module.exports.heap_sort = function (a) {
+    "use strict";
     function _swap(i,j)
     {
         var tmp = a[i];
@@ -132,12 +135,13 @@ module.exports.heap_sort = function (a) {
         _swap(0,i);
         _heapify(0,i);
     }
-}
+};
 
 //================================================================================
                                     // BUCKET SORT
 //================================================================================
 module.exports.bucket_sort = function (a, n ,hash) {
+    "use strict";
     var buckets = new Array(n);
 
     for(var i=0; i<a.length; ++i)
@@ -145,13 +149,13 @@ module.exports.bucket_sort = function (a, n ,hash) {
         var hash_val = hash(a[i]);
         if (buckets[hash_val]===undefined)
         {
-            buckets[hash_val]=new Array();
+            buckets[hash_val] = [];
         }
         buckets[hash_val].push(a[i]);
     }
 
     var idx = 0;
-    for(var i=0;i<n;i++)
+    for(i=0;i<n;i++)
     {
         if(buckets[i]!==undefined)
         {
@@ -170,4 +174,4 @@ module.exports.bucket_sort = function (a, n ,hash) {
             }
         }
     }
-}
+};

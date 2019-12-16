@@ -1,56 +1,57 @@
-'use strict';
+function random_value(minval, maxval) {
+    "use strict";
+    if (maxval < minval) {
+        var tmp = maxval;
+        maxval = minval;
+        minval = tmp;
+    }
+    var delta = (maxval - minval);
+    return (minval + Math.floor(Math.random() * delta));
+}
 
- function random_value(minval, maxval) {
-     if (maxval < minval) {
-         var tmp = maxval;
-         maxval = minval;
-         minval = tmp;
-     }
-     var delta = (maxval - minval);
-     return (minval + Math.floor(Math.random() * delta));
- }
 
+module.exports.random_array = function(nb_elem, minval, maxval) {
+    "use strict";
+    var array = [];
 
- module.exports.random_array = function(nb_elem, minval, maxval) {
-     var array = [];
+    for (var i = 0; i < nb_elem; ++i) {
+        var val = random_value(minval, maxval);
+        array.push(val);
+    }
+    return array;
+};
 
-     for (var i = 0; i < nb_elem; ++i) {
-         var val = random_value(minval, maxval);
-         array.push(val);
-     }
-     return array;
- }
+module.exports.random_value = random_value;
 
- module.exports.random_value = random_value;
+/*
+a:array, left: left index, right: right index
+*/
+module.exports.partition = function(a, left, right, pivot_index) {
+    "use strict";
+    var pivot_val = a[pivot_index];
 
- /*
- a:array, left: left index, right: right index
- */
- module.exports.partition = function(a, left, right, pivot_index) {
-     var pivot_val = a[pivot_index];
+    //move pivot to end of array
+    var tmp = a[pivot_index];
+    a[pivot_index] = a[right];
+    a[right] = tmp;
 
-     //move pivot to end of array
-     var tmp = a[pivot_index];
-     a[pivot_index] = a[right];
-     a[right] = tmp;
+    /* all values <= pivot are moved to front of array and pivot inserted
+     * just after them. */
+    pivot_index = left;
+    for (var idx = left; idx < right; ++idx) {
+        if (a[idx] < pivot_val) {
+            tmp = a[pivot_index];
+            a[pivot_index] = a[idx];
+            a[idx] = tmp;
+            pivot_index++;
+        }
+    }
+    tmp = a[pivot_index];
+    a[pivot_index] = a[right];
+    a[right] = tmp;
 
-     /* all values <= pivot are moved to front of array and pivot inserted
-      * just after them. */
-     var pivot_index = left;
-     for (var idx = left; idx < right; ++idx) {
-         if (a[idx] < pivot_val) {
-             tmp = a[pivot_index];
-             a[pivot_index] = a[idx];
-             a[idx] = tmp;
-             pivot_index++;
-         }
-     }
-     tmp = a[pivot_index];
-     a[pivot_index] = a[right];
-     a[right] = tmp;
-
-     return pivot_index;
- }
+    return pivot_index;
+};
 
 
 /* -------------------------------------------------------------------------------
@@ -59,15 +60,16 @@
 
 function checkType(expected, type) {
     if (expected !== type)
-        throw new Error(`Wrong type ${type}. Type ${expected} expected.`);
- }
+        throw new Error("Wrong type " + type + ". Type " + expected + " expected.");
+}
 
- function checkTree(t1, t2) {
+function checkTree(t1, t2) {
     if (t1 !== t2)
-        throw 'Nodes haave not same parent tree';
- }
+        throw 'Nodes have not same parent tree';
+}
 
- function Node(tree, val) {
+function Node(tree, val) {
+    "use strict";
     if (!!tree) {
         var o = {};
         if (val === null || val === undefined) {
@@ -81,36 +83,51 @@ function checkType(expected, type) {
         o.tree = tree;
 
         var node = {
-            getType: () => tree.type,
-            getVal: () => o.val,
-            getLeft: () => o.left,
-            getRight: () => o.right,
-            getTree: () => o.tree,
-            setVal: (v) => {
+            getType: function() {
+                return tree.type;
+            },
+            getVal: function() {
+                return o.val;
+            },
+            getLeft: function() {
+                return o.left;
+            },
+            getRight: function() {
+                return o.right;
+            },
+            getTree: function() {
+                return o.tree;
+            },
+            setVal: function(v) {
                 checkType(tree.type, typeof v);
                 o.val = v;
             },
-            setLeft: (n) => {
+            setLeft: function(n) {
                 checkType(tree.type, n.getType());
                 checkTree(tree, n.getTree());
                 o.left = n;
                 return node;
             },
-            setRight: (n) => {
+            setRight: function(n) {
                 checkType(tree.type, n.getType());
                 checkTree(tree, n.getTree());
                 o.right = n;
                 return node;
             },
-            hasVal: () => !!o.val,
-            isLeaf: () => !o.right && !o.left,
+            hasVal: function() {
+                return !!o.val;
+            },
+            isLeaf: function() {
+                return !o.right && !o.left;
+            }
         };
         return node;
     }
     throw new Error('Valid tree must be Node constructor parameter');
- }
+}
 
- function Tree(type) {
+function Tree(type) {
+    "use strict";
 
     if (type === 'undefined' || type === null || type === undefined)
         throw new Error('Tree type cannot be null or undefined');
@@ -124,7 +141,9 @@ function checkType(expected, type) {
     var t = {};
     t.root = null;
     t.type = type;
-    var isSameTree = (node) => node.getTree() === t;
+    var isSameTree = function(node) {
+        return node.getTree() === t;
+    };
     return {
         setRoot: function(node) {
             checkType(type, node.getType());
@@ -132,18 +151,121 @@ function checkType(expected, type) {
                 throw 'setRoot: Node has not same parent tree';
             t.root = node;
         },
-        getRoot: () => t.root,
-        getType: () => t.type,
-        createNode: (v) => {
+        getRoot: function() {
+            return t.root;
+        },
+        getType: function() {
+            return t.type;
+        },
+        createNode: function(v) {
             return Node(t, v);
         }
     };
- }
+}
 
- module.exports.Tree = Tree;
- 
- module.exports.printTree = function(tree) {
+module.exports.Tree = Tree;
 
+var iteratorBase = function() {
+    this.nodequeue = [];
 
+    this.empty = function() {
+        return this.nodequeue.length == 0;
+    };
 
- }
+    this.end = function() {
+        return this.empty();
+    };
+    this.get = function() {
+        if (!this.empty()) {
+            return this.nodequeue[this.nodequeue.length - 1];
+        }
+        return null;
+    };
+};
+
+module.exports.PreOrderTraversalIterator = function(tree) {
+
+    var base = new iteratorBase();
+    var nodequeue = base.nodequeue;
+
+    var iterator = {
+        begin: function() {
+            if (tree.getRoot())
+                nodequeue.push(tree.getRoot());
+        },
+
+        end: function() {
+            return base.end();
+        },
+
+        get: function() {
+            return base.get();
+        },
+
+        next: function() {
+
+            if (!base.empty()) {
+                var parent = nodequeue.pop();
+                var n = parent.getRight();
+                if (n) {
+                    nodequeue.push(n);
+                }
+                n = parent.getLeft();
+                if (n) {
+                    nodequeue.push(n);
+                }
+            }
+        }
+
+    };
+
+    return iterator;
+};
+
+module.exports.InOrderTraversalIterator = function(tree) {
+    var base = new iteratorBase();
+    var nodequeue = base.nodequeue;
+
+    var leftmost_leaf = function(n) {
+        while (n && !n.isLeaf()) {
+            nodequeue.push(n);
+            n = n.getLeft();
+        }
+        if (n)
+            nodequeue.push(n);
+    };
+
+    var iterator = {
+
+        begin: function() {
+
+            leftmost_leaf(tree.getRoot());
+        },
+
+        end: function() {
+            return base.end();
+        },
+
+        get: function() {
+            return base.get();
+        },
+
+        next: function() {
+
+            if (!base.empty()) {
+
+                var n = nodequeue.pop();
+                if (!n.isLeaf() && n.getRight()) {
+                    leftmost_leaf(n.getRight());
+                }
+            }
+        }
+
+    };
+
+    return iterator;
+};
+
+module.exports.printTree = function(tree) {
+
+};
