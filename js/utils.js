@@ -114,11 +114,22 @@ function Node(tree, val) {
                 o.right = n;
                 return node;
             },
+            removeLeft: function() {
+                o.left = null;
+            },
+            removeRight: function() {
+                o.right = null;
+            },
             hasVal: function() {
                 return !!o.val;
             },
             isLeaf: function() {
                 return !o.right && !o.left;
+            },
+            toString: function() {
+                if (o.val == null)
+                    return 'null';
+                return o.val.toString();
             }
         };
         return node;
@@ -166,67 +177,35 @@ function Tree(type) {
 module.exports.Tree = Tree;
 
 var iteratorBase = function() {
-    this.nodequeue = [];
-
+    var nodequeue = [];
     this.empty = function() {
-        return this.nodequeue.length == 0;
+        return nodequeue.length == 0;
     };
-
     this.end = function() {
         return this.empty();
     };
     this.get = function() {
         if (!this.empty()) {
-            return this.nodequeue[this.nodequeue.length - 1];
+            return nodequeue[nodequeue.length - 1];
         }
         return null;
     };
-};
-
-module.exports.PreOrderTraversalIterator = function(tree) {
-
-    var base = new iteratorBase();
-    var nodequeue = base.nodequeue;
-
-    var iterator = {
-        begin: function() {
-            if (tree.getRoot())
-                nodequeue.push(tree.getRoot());
-        },
-
-        end: function() {
-            return base.end();
-        },
-
-        get: function() {
-            return base.get();
-        },
-
-        next: function() {
-
-            if (!base.empty()) {
-                var parent = nodequeue.pop();
-                var n = parent.getRight();
-                if (n) {
-                    nodequeue.push(n);
-                }
-                n = parent.getLeft();
-                if (n) {
-                    nodequeue.push(n);
-                }
-            }
+    this.front = function() {
+        if (!this.empty()) {
+            return nodequeue[0];
         }
-
+        return null;
     };
-
-    return iterator;
-};
-
-module.exports.InOrderTraversalIterator = function(tree) {
-    var base = new iteratorBase();
-    var nodequeue = base.nodequeue;
-
-    var leftmost_leaf = function(n) {
+    this.push = function(n) {
+        nodequeue.push(n);
+    };
+    this.pop = function() {
+        return nodequeue.pop();
+    };
+    this.pop_front = function() {
+        return nodequeue.splice(0, 1)[0];
+    };
+    this.leftmost_node = function(n) {
         while (n && !n.isLeaf()) {
             nodequeue.push(n);
             n = n.getLeft();
@@ -234,12 +213,104 @@ module.exports.InOrderTraversalIterator = function(tree) {
         if (n)
             nodequeue.push(n);
     };
+    this.deepest_node = function(n) {
+        while (n && !n.isLeaf()) {
+            nodequeue.push(n);
+            if (n.getLeft())
+                n = n.getLeft();
+            else
+                n = n.getRight();
+        }
+        if (n)
+            nodequeue.push(n);
+    };
+};
 
-    var iterator = {
+module.exports.PreOrderTraversalIterator = function(tree) {
+    var base = new iteratorBase();
+    return {
+        begin: function() {
+            if (tree.getRoot())
+                base.push(tree.getRoot());
+        },
+        end: function() {
+            return base.end();
+        },
+        get: function() {
+            return base.get();
+        },
+        next: function() {
+            if (!base.empty()) {
+                var parent = base.pop();
+                var n = parent.getRight();
+                if (n) {
+                    base.push(n);
+                }
+                n = parent.getLeft();
+                if (n) {
+                    base.push(n);
+                }
+            }
+        }
+    };
+};
+
+module.exports.InOrderTraversalIterator = function(tree) {
+    var base = new iteratorBase();
+    return {
+        begin: function() {
+            base.leftmost_node(tree.getRoot());
+        },
+        end: function() {
+            return base.end();
+        },
+        get: function() {
+            return base.get();
+        },
+        next: function() {
+            if (!base.empty()) {
+                var n = base.pop();
+                if (!n.isLeaf() && n.getRight()) {
+                    base.leftmost_node(n.getRight());
+                }
+            }
+        }
+    };
+};
+
+module.exports.PostOrderTraversalIterator = function(tree) {
+    var base = new iteratorBase();
+    return {
+        begin: function() {
+            base.deepest_node(tree.getRoot());
+        },
+        end: function() {
+            return base.end();
+        },
+        get: function() {
+            return base.get();
+        },
+        next: function() {
+            if (!base.empty()) {
+                var n = base.pop();
+                var r = base.get() ? base.get().getRight() : null;
+                if (r && n !== r) {
+                    base.deepest_node(r);
+                }
+            }
+        }
+    };
+};
+
+module.exports.BreadthOrderTraversalIterator = function(tree) {
+    var base = new iteratorBase();
+
+    return {
 
         begin: function() {
-
-            leftmost_leaf(tree.getRoot());
+            if (tree.getRoot()) {
+                base.push(tree.getRoot());
+            }
         },
 
         end: function() {
@@ -247,25 +318,22 @@ module.exports.InOrderTraversalIterator = function(tree) {
         },
 
         get: function() {
-            return base.get();
+            return base.front();
         },
 
         next: function() {
 
             if (!base.empty()) {
 
-                var n = nodequeue.pop();
-                if (!n.isLeaf() && n.getRight()) {
-                    leftmost_leaf(n.getRight());
+                var n = base.pop_front();
+                if (n.getLeft()) {
+                    base.push(n.getLeft());
+                }
+                if (n.getRight()) {
+                    base.push(n.getRight());
                 }
             }
         }
 
     };
-
-    return iterator;
-};
-
-module.exports.printTree = function(tree) {
-
 };

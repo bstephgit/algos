@@ -1,6 +1,7 @@
-//var mocha = require('mocha');
 var expect = require('chai').expect;
 var utils = require('../utils');
+var createTree = require('./trees_gen').createTree;
+var createUnbalancedTree = require('./trees_gen').createUnbalancedTree;
 
 describe("utils module: random_array", function() {
 	'use strict';
@@ -94,40 +95,6 @@ describe("Utils Tree and nodes", function() {
 
 	});
 
-	var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
-	function createTree() {
-		var tree = utils.Tree(data[0]);
-		tree.setRoot(tree.createNode(data[0]));
-		var nb_nodes = 1;
-		var ancestors = [tree.getRoot()];
-
-		for (var nbperlayer = 2; nb_nodes < data.length; nbperlayer *= 2) {
-			var nextnodes = [];
-			//console.log('ancestors', ancestors.length);
-
-
-			for (var i = 0; nb_nodes < data.length && i < nbperlayer; i += 1) {
-
-				var n = tree.createNode(data[nb_nodes++]);
-				nextnodes.push(n);
-
-				var parent = ancestors[0];
-				if (nb_nodes % 2 == 0) {
-					//console.log('parent[' + parent.getVal() + '].setLeft()', i, n.getVal());
-					parent.setLeft(n);
-				} else {
-					//console.log('parent[' + parent.getVal() + '].setRight()', i, n.getVal());
-					parent.setRight(n);
-					ancestors.splice(0, 1);
-				}
-			}
-			ancestors = nextnodes;
-
-		}
-		return tree;
-	}
-
 	it("PreOrder Traversal Tree Iterator", function() {
 		var it = utils.PreOrderTraversalIterator(createTree());
 		var nbiter = 0;
@@ -136,7 +103,7 @@ describe("Utils Tree and nodes", function() {
 		expect(it.end()).to.be.true;
 
 		it.begin();
-		while (!it.end() && nbiter < data.length) {
+		while (!it.end() && nbiter < order.length) {
 			var node = it.get();
 
 			expect(node).to.not.be.null;
@@ -147,13 +114,35 @@ describe("Utils Tree and nodes", function() {
 		}
 
 		expect(it.end()).to.be.true;
-		expect(nbiter).to.equal(data.length);
+		expect(nbiter).to.equal(order.length);
 	});
 
 	it("PreOrder Traversal Tree Iterator - Empty Tree", function() {
 		var t = utils.Tree('string');
 		var it = utils.PreOrderTraversalIterator(t);
 		expect(it.end()).to.be.true;
+	});
+
+	it("PreOrder Traversal Tree Iterator - Unbalanced Tree", function() {
+		var it = utils.PreOrderTraversalIterator(createUnbalancedTree());
+		var nbiter = 0;
+		var order = [1, 2, 4, 9, 3, 7, 14];
+
+		expect(it.end()).to.be.true;
+
+		it.begin();
+		while (!it.end() && nbiter < order.length) {
+			var node = it.get();
+
+			expect(node).to.not.be.null;
+			expect(node).to.not.be.undefined;
+			expect(node.getVal()).to.equal(order[nbiter]);
+			nbiter += 1;
+			it.next();
+		}
+
+		expect(it.end()).to.be.true;
+		expect(nbiter).to.equal(order.length);
 	});
 
 	it("InOrder Traversal Tree Iterator", function() {
@@ -164,7 +153,7 @@ describe("Utils Tree and nodes", function() {
 		expect(it.end()).to.be.true;
 
 		it.begin();
-		while (!it.end() && nbiter < data.length) {
+		while (!it.end() && nbiter < order.length) {
 			var node = it.get();
 
 			expect(node).to.not.be.null;
@@ -176,13 +165,110 @@ describe("Utils Tree and nodes", function() {
 		}
 
 		expect(it.end()).to.be.true;
-		expect(nbiter).to.equal(data.length);
+		expect(nbiter).to.equal(order.length);
 	});
 
 	it("InOrder Traversal Tree Iterator - Empty Tree", function() {
 		var t = utils.Tree('string');
 		var it = utils.InOrderTraversalIterator(t);
 		expect(it.end()).to.be.true;
+	});
+
+	it("InOrder Traversal Tree Iterator - Unbalanced Tree", function() {
+		var it = utils.InOrderTraversalIterator(createUnbalancedTree());
+		var nbiter = 0;
+		var order = [4, 9, 2, 1, 3, 14, 7];
+
+		expect(it.end()).to.be.true;
+
+		it.begin();
+		while (!it.end() && nbiter < order.length) {
+			var node = it.get();
+
+			expect(node).to.not.be.null;
+			expect(node).to.not.be.undefined;
+
+			expect(node.getVal()).to.equal(order[nbiter]);
+			nbiter += 1;
+			it.next();
+		}
+
+		expect(it.end()).to.be.true;
+		expect(nbiter).to.equal(order.length);
+	});
+	it("PostOrder Traversal Tree Iterator", function() {
+		var it = utils.PostOrderTraversalIterator(createTree());
+		var nbiter = 0;
+		var order = [8, 9, 4, 10, 11, 5, 2, 12, 13, 6, 14, 15, 7, 3, 1];
+
+		expect(it.end()).to.be.true;
+
+		it.begin();
+		while (!it.end() && nbiter < order.length) {
+			var node = it.get();
+
+			expect(node).to.not.be.null;
+			expect(node).to.not.be.undefined;
+
+			expect(node.getVal()).to.equal(order[nbiter]);
+			nbiter += 1;
+			it.next();
+		}
+
+		expect(it.end()).to.be.true;
+		expect(nbiter).to.equal(order.length);
+	});
+
+	it("PostOrder Traversal Tree Iterator - Empty Tree", function() {
+		var t = utils.Tree('string');
+		var it = utils.PostOrderTraversalIterator(t);
+		expect(it.end()).to.be.true;
+	});
+
+	it("PostOrder Traversal Tree Iterator - Unbalanced Tree", function() {
+		var it = utils.PostOrderTraversalIterator(createUnbalancedTree());
+		var nbiter = 0;
+		var order = [9, 4, 2, 14, 7, 3, 1];
+
+		expect(it.end()).to.be.true;
+
+		it.begin();
+		while (!it.end() && nbiter < order.length) {
+			var node = it.get();
+
+			expect(node).to.not.be.null;
+			expect(node).to.not.be.undefined;
+
+			expect(node.getVal()).to.equal(order[nbiter]);
+			nbiter += 1;
+			it.next();
+		}
+
+		expect(it.end()).to.be.true;
+		expect(nbiter).to.equal(order.length);
+	});
+
+	it("Breadth Traversal Tree Iterator", function() {
+		var it = utils.BreadthOrderTraversalIterator(createTree());
+		var nbiter = 0;
+		var order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+		expect(it.end()).to.be.true;
+
+		it.begin();
+		while (!it.end() && nbiter < order.length) {
+			var node = it.get();
+
+			expect(node).to.not.be.null;
+			expect(node).to.not.be.undefined;
+
+			expect(node.getVal()).to.equal(order[nbiter]);
+			nbiter += 1;
+			it.next();
+		}
+
+		expect(it.end()).to.be.true;
+		expect(nbiter).to.equal(order.length);
 	});
 
 });
