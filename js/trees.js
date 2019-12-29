@@ -19,8 +19,86 @@ function treedepth(tree) {
 	return _depth(tree.getRoot());
 
 }
-
 module.exports.depth = treedepth;
+
+function BinaryTree(type, compare_function) {
+	"use strict";
+
+	var tree = Tree(type);
+	var compare_fun = compare_function || function(item1, item2) {
+		return item1 < item2;
+	};
+
+	var _findElem = function(node, val) {
+		if (node == null || val == node.getval()) {
+			return node;
+		}
+		if (compare_fun(val, node.getVal()))
+			return _findElem(node.getLeft(), val);
+		else
+			return _findElem(node.getRight(), val);
+
+	};
+
+	var _min = function (){
+		var node = tree.getRoot();
+		var min_node = null;
+		while(node){
+			min_node = node;
+			node = node.getLeft();
+		}
+		return min_node;
+	};
+
+	return {
+		insert: function(element) {
+			if (!element) throw "Element inserted cannot be null or udefined";
+			if (tree.getType() !== typeof element) throw "Element type (" + typeof element + ") differs from tree type (" + tree.getType() + ")";
+
+			var node = tree.getRoot();
+			var insert = null;
+			while (node) {
+				insert = node;
+				if (compare_fun(element,node.getVal()))
+					node = node.getLeft();
+				else
+					node = node.getRight();
+			}
+			node = tree.createNode(element);
+			if (insert == null)
+				tree.setRoot(node);
+			else if (compare_fun(element, insert.getVal()))
+				insert.setLeft(node);
+			else
+				insert.setRight(node);
+			node.parent = insert;
+		},
+		find: function(element) {
+
+			if (_findElem(tree.getRoot(), element))
+				return element;
+			return null;
+		},
+		remove: function(element) {
+			var node = _findElem(tree.getRoot(), element);
+			if (node) {
+
+			}
+		},
+		min: function(){
+			var n = _min();
+			if(n)
+				return n.getVal();
+			return n;
+		},
+		print: function(writable_stream){
+			module.exports.printTree(tree,writable_stream);
+		}
+	};
+}
+
+module.exports.BinaryTree = BinaryTree;
+
 /*
 ex:
 root__x__y__z__                                                            // root layer
@@ -31,7 +109,7 @@ child1                              child2_2312312                         // la
 etc...
 
 */
-module.exports.printTree = function(tree, writable_stream) {
+module.exports.printTree = function pt(tree, writable_stream) {
 
 	'use strict';
 
@@ -114,23 +192,19 @@ module.exports.printTree = function(tree, writable_stream) {
 				var offset = 0;
 				while (index < tree_length && index < index_max) {
 					if (max[index]) {
-						offsets[index] = offset;
 
-						offset = max[index] + sibling_space - nodes[index].length;
+						offsets[index] = offset + Math.floor( (max[index] - nodes[index].length + sibling_space)/2);
+
+						offset = Math.ceil( (max[index] - nodes[index].length + sibling_space)/2);
 						index += 1;
 					} else {
 						if (index % 2 != 1) throw 'index ' + index + ' should be odd';
 						if (index + 1 >= tree_length) throw 'index ' + index + ' should less than tree heap length ' + tree_length;
-						//get sibling parent length
+						//get parent length
 						var parent_index = Math.floor((index - 1) / 2);
-						var next_forward = 2;
-						while (parent_index >= 0 && !max[parent_index]) {
-							parent_index = Math.floor((parent_index - 1) / 2);
-							next_forward *= 2;
-						}
 						if (parent_index > -1) {
 							offset += max[parent_index] + sibling_space;
-							index += next_forward;
+							index += 2;
 						}
 					}
 				}
@@ -164,10 +238,9 @@ module.exports.printTree = function(tree, writable_stream) {
 
 	while (i < offsets.length) {
 
-		if ( i >= nb_max )
-		{
+		if (i >= nb_max) {
 			print('\n');
-			nb_max += nb_max+1;
+			nb_max += nb_max + 1;
 		}
 
 		if (offsets[i])
