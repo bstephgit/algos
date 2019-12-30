@@ -103,14 +103,18 @@ function Node(tree, val) {
                 o.val = v;
             },
             setLeft: function(n) {
-                checkType(tree.type, n.getType());
-                checkTree(tree, n.getTree());
+                if (n != null) {
+                    checkType(tree.type, n.getType());
+                    checkTree(tree, n.getTree());
+                }
                 o.left = n;
                 return node;
             },
             setRight: function(n) {
-                checkType(tree.type, n.getType());
-                checkTree(tree, n.getTree());
+                if (n != null) {
+                    checkType(tree.type, n.getType());
+                    checkTree(tree, n.getTree());
+                }
                 o.right = n;
                 return node;
             },
@@ -144,7 +148,7 @@ function Tree(type) {
         throw new Error('Tree type cannot be null or undefined');
 
     if (typeof type === 'string' && type !== 'string')
-        type = 'string';
+        type = type;
     if (typeof type !== 'string')
         type = typeof type;
 
@@ -337,3 +341,65 @@ module.exports.BreadthOrderTraversalIterator = function(tree) {
 
     };
 };
+
+function ReadOnlyNode(node) {
+    if (node === undefined)
+        throw 'ReadOnlyNode: node parameter cannot be undefined';
+
+    if (node == null)
+        return node;
+
+    var ro_node = {};
+    var proto = {};
+
+    proto.getVal = function() {
+        return node.getVal();
+    };
+    proto.getLeft = function() {
+        return ReadOnlyNode(node.getLeft());
+    };
+    proto.getRight = function() {
+        return ReadOnlyNode(node.getRight());
+    };
+    proto.getTree = function() {
+        return ReadOnlyNode(node.getTree());
+    };
+    proto.hasVal = function() {
+        return node.hasVal();
+    };
+    proto.isLeaf = function() {
+        return node.isLeaf();
+    };
+    proto.toString = function() {
+        return node.toString();
+    };
+
+    Object.setPrototypeOf(ro_node, proto);
+
+    return ro_node;
+}
+module.exports.ReadOnlyNode = ReadOnlyNode;
+
+function ReadOnlyTree(tree) {
+
+    if (tree === undefined)
+        throw 'ReadOnlyTree: tree parameter connot be undefined';
+
+    if (tree == null)
+        return tree;
+
+    var ro_tree = {};
+    var proto = {};
+
+    proto.getRoot = function() {
+        return ReadOnlyNode(tree.getRoot());
+    };
+    proto.print = function (writable_stream){
+        tree.print(writable_stream);
+    };
+
+    Object.setPrototypeOf(ro_tree, proto);
+
+    return ro_tree;
+}
+module.exports.ReadOnlyTree = ReadOnlyTree;

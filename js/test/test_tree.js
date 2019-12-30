@@ -43,3 +43,88 @@ describe("Tree - depth ", function() {
 	});
 
 });
+
+describe("Tree - BinaryTree", function() {
+
+	var createRandomArray = function() {
+		return require('../utils').random_array(30, 1, 200);
+	};
+	var bt = trees.BinaryTree(typeof 0);
+	var ar = createRandomArray();
+
+	var checkTree = function(tree) {
+
+		var _checkNode = function(node) {
+			if (node) {
+				if (node.getLeft()) {
+					expect(node.getVal()).to.be.least(node.getLeft().getVal());
+					_checkNode(node.getLeft());
+				}
+				if (node.getRight()) {
+					expect(node.getVal()).to.be.most(node.getRight().getVal());
+					_checkNode(node.getRight());
+				}
+			}
+		};
+		_checkNode(tree.getRoot());
+	};
+
+	it("binary tree - insert", function() {
+		for (var i = 0; i < ar.length; i += 1) {
+			bt.insert(ar[i]);
+		}
+		var it = require('../utils').InOrderTraversalIterator(bt);
+		var count = 0;
+		it.begin();
+		while(!it.end()){
+			count+=1;
+			it.next();
+		}
+		expect(count).to.equal(ar.length);
+		checkTree(bt);
+	});
+
+	it("binary tree - remove", function() {
+
+		var random_value = require('../utils').random_value;
+		for (i = 0; i < 10; i += 1) {
+			var val = ar[random_value(0, ar.length - 1)];
+
+			var j = 0;
+			var count = 0;
+			while (j < ar.length) {
+				if (ar[j] === val) count += 1;
+				j += 1;
+			}
+			expect(bt.find(val) == val).to.be.true;
+			j = 0;
+			while (j < count) {
+				bt.remove(val);
+				j += 1;
+			}
+			j = 0;
+			while (j < count) {
+				var k = 0;
+				while (k < ar.length) {
+					if (ar[k] == val) {
+						ar.splice(k, 1);
+						j += 1;
+						break;
+					}
+					k += 1;
+				}
+			}
+			var writable = {
+				str: '',
+				write: function(s) {
+					this.str = this.str.concat(s);
+				}
+			};
+			bt.print(writable);
+			expect(bt.find(val), val + " should have been removed " + count + " times\n" + writable.str +
+				'\nar[' + ar.length + ']=' + ar.toString() + '\n').to.be.null;
+
+			checkTree(bt);
+		}
+	});
+});

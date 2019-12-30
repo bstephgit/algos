@@ -1,4 +1,5 @@
 var Tree = require('./utils').Tree;
+var ReadOnlyNode = require('./utils').ReadOnlyNode;
 
 function treedepth(tree) {
 	'use strict';
@@ -24,13 +25,14 @@ module.exports.depth = treedepth;
 function BinaryTree(type, compare_function) {
 	"use strict";
 
+
 	var tree = Tree(type);
 	var compare_fun = compare_function || function(item1, item2) {
 		return item1 < item2;
 	};
 
 	var _findElem = function(node, val) {
-		if (node == null || val == node.getval()) {
+		if (node == null || val == node.getVal()) {
 			return node;
 		}
 		if (compare_fun(val, node.getVal()))
@@ -39,11 +41,22 @@ function BinaryTree(type, compare_function) {
 			return _findElem(node.getRight(), val);
 
 	};
+	var _replace = function(replaced, node) {
+		if (replaced.parent == null) {
+			tree.setRoot(node);
+		} else if (replaced.parent.getLeft() === replaced) {
+			replaced.parent.setLeft(node);
+		} else
+			replaced.parent.setRight(node);
 
-	var _min = function (){
-		var node = tree.getRoot();
+		if (node) {
+			node.parent = replaced.parent;
+		}
+	};
+
+	var _min = function(node) {
 		var min_node = null;
-		while(node){
+		while (node) {
 			min_node = node;
 			node = node.getLeft();
 		}
@@ -56,22 +69,22 @@ function BinaryTree(type, compare_function) {
 			if (tree.getType() !== typeof element) throw "Element type (" + typeof element + ") differs from tree type (" + tree.getType() + ")";
 
 			var node = tree.getRoot();
-			var insert = null;
+			var parent = null;
 			while (node) {
-				insert = node;
-				if (compare_fun(element,node.getVal()))
+				parent = node;
+				if (compare_fun(element, node.getVal()))
 					node = node.getLeft();
 				else
 					node = node.getRight();
 			}
 			node = tree.createNode(element);
-			if (insert == null)
+			if (parent == null)
 				tree.setRoot(node);
-			else if (compare_fun(element, insert.getVal()))
-				insert.setLeft(node);
+			else if (compare_fun(element, parent.getVal()))
+				parent.setLeft(node);
 			else
-				insert.setRight(node);
-			node.parent = insert;
+				parent.setRight(node);
+			node.parent = parent;
 		},
 		find: function(element) {
 
@@ -81,18 +94,36 @@ function BinaryTree(type, compare_function) {
 		},
 		remove: function(element) {
 			var node = _findElem(tree.getRoot(), element);
-			if (node) {
 
+			if (node) {
+				if (node.getLeft() == null) {
+					_replace(node, node.getRight());
+				} else if (node.getRight() == null) {
+					_replace(node, node.getLeft());
+				} else {
+					var min_r = _min(node.getRight());
+					if (min_r.parent !== node) {
+						_replace(min_r, min_r.getRight());
+						min_r.setRight(node.getRight());
+						min_r.getRight().parent = min_r;
+					}
+					_replace(node, min_r);
+					min_r.setLeft(node.getLeft());
+					min_r.getLeft().parent = min_r;
+				}
 			}
 		},
-		min: function(){
-			var n = _min();
-			if(n)
+		min: function() {
+			var n = _min(tree.getRoot());
+			if (n)
 				return n.getVal();
 			return n;
 		},
-		print: function(writable_stream){
-			module.exports.printTree(tree,writable_stream);
+		print: function(writable_stream) {
+			module.exports.printTree(tree, writable_stream);
+		},
+		getRoot: function() {
+			return ReadOnlyNode(tree.getRoot());
 		}
 	};
 }
@@ -109,7 +140,7 @@ child1                              child2_2312312                         // la
 etc...
 
 */
-module.exports.printTree = function(tree, writable_stream) {
+module.exports.printTree = function pt(tree, writable_stream) {
 
 	'use strict';
 
@@ -242,10 +273,9 @@ module.exports.printTree = function(tree, writable_stream) {
 
 	while (i < offsets.length) {
 
-		if ( i >= nb_max )
-		{
+		if (i >= nb_max) {
 			print('\n');
-			nb_max += nb_max+1;
+			nb_max += nb_max + 1;
 		}
 
 		if (offsets[i])

@@ -272,3 +272,48 @@ describe("Utils Tree and nodes", function() {
 	});
 
 });
+
+describe("Read only trees and nodes", function() {
+	var tree = createTree();
+
+	it("Read Only node: creation from existing node", function() {
+		var node = tree.getRoot();
+		var ro_node = utils.ReadOnlyNode(node);
+
+		expect(node).to.not.be.null;
+		expect(ro_node.setLeft).to.be.undefined;
+		expect(ro_node.setRight).to.be.undefined;
+		expect(ro_node.removeLeft).to.be.undefined;
+		expect(ro_node.removeRight).to.be.undefined;
+		expect(ro_node.getVal()).to.equal(node.getVal());
+		expect(ro_node.getLeft().getVal()).to.equal(node.getLeft().getVal());
+		expect(ro_node.getRight().getVal()).to.equal(node.getRight().getVal());
+	});
+
+	it("Read only node: create from null or undefined", function() {
+		expect(utils.ReadOnlyNode(null)).to.be.null;
+		expect(function() {
+			utils.ReadOnlyNode(undefined);
+		}).to.throw;
+	});
+
+	it("Read only tree: create from tree", function() {
+		var ro_tree = utils.ReadOnlyTree(tree);
+
+		expect(ro_tree.setRoot).to.be.undefined;
+		expect(ro_tree.getRoot).to.not.be.undefined;
+		expect(ro_tree.getRoot().getVal()).to.equal(tree.getRoot().getVal());
+		expect(ro_tree.getRoot().setLeft).to.be.undefined;
+		expect(ro_tree.getRoot().setRight).to.be.undefined;
+		expect(ro_tree.getRoot().removeLeft).to.be.undefined;
+		expect(ro_tree.getRoot().removeRight).to.be.undefined;
+		expect(ro_tree.getRoot().getLeft().getVal()).to.equal(tree.getRoot().getLeft().getVal());
+		expect(ro_tree.getRoot().getRight().getVal()).to.equal(tree.getRoot().getRight().getVal());
+	});
+	it("Read only tree: create from null of undefined", function() {
+		expect(utils.ReadOnlyTree(null)).to.be.null;
+		expect(function() {
+			utils.ReadOnlyTree(undefined);
+		}).to.throw;
+	});
+});
