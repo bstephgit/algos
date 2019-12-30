@@ -19,8 +19,86 @@ function treedepth(tree) {
 	return _depth(tree.getRoot());
 
 }
-
 module.exports.depth = treedepth;
+
+function BinaryTree(type, compare_function) {
+	"use strict";
+
+	var tree = Tree(type);
+	var compare_fun = compare_function || function(item1, item2) {
+		return item1 < item2;
+	};
+
+	var _findElem = function(node, val) {
+		if (node == null || val == node.getval()) {
+			return node;
+		}
+		if (compare_fun(val, node.getVal()))
+			return _findElem(node.getLeft(), val);
+		else
+			return _findElem(node.getRight(), val);
+
+	};
+
+	var _min = function (){
+		var node = tree.getRoot();
+		var min_node = null;
+		while(node){
+			min_node = node;
+			node = node.getLeft();
+		}
+		return min_node;
+	};
+
+	return {
+		insert: function(element) {
+			if (!element) throw "Element inserted cannot be null or udefined";
+			if (tree.getType() !== typeof element) throw "Element type (" + typeof element + ") differs from tree type (" + tree.getType() + ")";
+
+			var node = tree.getRoot();
+			var insert = null;
+			while (node) {
+				insert = node;
+				if (compare_fun(element,node.getVal()))
+					node = node.getLeft();
+				else
+					node = node.getRight();
+			}
+			node = tree.createNode(element);
+			if (insert == null)
+				tree.setRoot(node);
+			else if (compare_fun(element, insert.getVal()))
+				insert.setLeft(node);
+			else
+				insert.setRight(node);
+			node.parent = insert;
+		},
+		find: function(element) {
+
+			if (_findElem(tree.getRoot(), element))
+				return element;
+			return null;
+		},
+		remove: function(element) {
+			var node = _findElem(tree.getRoot(), element);
+			if (node) {
+
+			}
+		},
+		min: function(){
+			var n = _min();
+			if(n)
+				return n.getVal();
+			return n;
+		},
+		print: function(writable_stream){
+			module.exports.printTree(tree,writable_stream);
+		}
+	};
+}
+
+module.exports.BinaryTree = BinaryTree;
+
 /*
 ex:
 root__x__y__z__                                                            // root layer
