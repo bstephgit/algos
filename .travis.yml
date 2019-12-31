@@ -7,10 +7,10 @@ node_js:
   - 7
 
 before_install:
+  - cd ./js
   - npm install
 
 before_script:
   - npm install -g gulp-cli
-  - cd ./js
 
 script: gulp test
